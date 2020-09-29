@@ -22,6 +22,8 @@ $(function () {
         )
         $('#ipt').val('')
         getMsg(text)
+        $('#ipt').focus()
+        resetui()
     })
     function getMsg(text) {
         $.ajax({
@@ -32,17 +34,36 @@ $(function () {
             },
             success: function (res) {
                 var msg = res.data.info.text
-                if (res.message == 'success') {
-                    $('.talk_list').append(
-                        `
-                        <li class="left_word">
-                          <img src="img/person01.png" /> <span>${msg}</span>
-                        </li>
-                        `
-                    )
+                if (res.message != 'success') {
+                    return alert('获取回复失败！')
                 }
+                $('.talk_list').append(
+                    `
+                    <li class="left_word">
+                      <img src="img/person01.png" /> <span>${msg}</span>
+                    </li>
+                    `
+                )
+                resetui()
+                getVoice(msg)
             }
 
+        })
+    }
+
+    function getVoice(text) {
+        $.ajax({
+            method: 'get',
+            url: 'http://www.liulongbin.top:3006/api/synthesize',
+            data: {
+                text: text
+            },
+            success: function (res) {
+                if (res.status != 200) {
+                    return alert('语音转换失败！')
+                }
+                $('audio').attr('src', res.voiceUrl)
+            }
         })
     }
 })
